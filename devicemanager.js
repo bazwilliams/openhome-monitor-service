@@ -5,7 +5,7 @@ let http = require('http');
 let _ = require('underscore');
 let url = require('url');
 let Ds = require('./ds.js').Ds;
-let responseParsers = require('./responseparsers.js');
+let responseParser = require('parsexmlresponse');
 let logger = require('./logger.js');
 
 let devices = new Map();
@@ -34,8 +34,8 @@ function fetchIcon(icon) {
         .value();
 }
 
-function toDeviceUsingLocation(location) {
-    return function toDevice(result, callback) {
+function toDeviceUsingLocation(location, callback) {
+    return function toDevice(err, result) {
         let ds = new Ds(location, processServiceListArray(result.root.device.serviceList.service));
         logger.debug('Getting sources at '+location);
         ds.getSources(function (err, results) {
@@ -68,7 +68,7 @@ function toDeviceUsingLocation(location) {
 function processDevice(location, callback) {
     http.get(
         location,
-        responseParsers.xml(toDeviceUsingLocation(location), callback)
+        responseParser(toDeviceUsingLocation(location, callback))
     ).on('error', callback);
 }
 
@@ -80,7 +80,7 @@ ssdp.on("DeviceAvailable:urn:av-openhome-org:service:Playlist:1", function onDev
     let uuid = parseUuid(res.usn, res.nt);
     processDevice(res.location, function makeDeviceAvailable(err, device) {
         if (err) {
-            logger.warn('Problem processing device at ' + res.location);
+            logger.warn('Problem processing device at` ' + res.location);
             logger.warn(err);
         } else {
             devices.set(uuid, device);

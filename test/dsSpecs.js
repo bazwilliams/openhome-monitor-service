@@ -11,7 +11,7 @@ var expect = chai.expect;
 chai.use(sinonChai);
 
 describe('ds', function () {
-    var ds, upnpMock, soapRequestCb, responseParserMock, soapObject, soapRequestArgs;
+    var ds, upnpMock, soapRequestCb, soapObject, parsexmlresponse, soapRequestArgs;
     beforeEach(function () {
         soapObject = void 0;
         soapRequestArgs = {};
@@ -25,18 +25,18 @@ describe('ds', function () {
                 };
             }
         };
-        responseParserMock = {
-            xml: function (parser, callback) {
-                return function (res) {
-                    parser(soapObject, callback);
-                };
-            }
+
+        parsexmlresponse = function(callback) {
+            return function() {
+                callback(null, soapObject);
+            };
         };
+
         mockery.enable({
             warnOnUnregistered: false
         });
+        mockery.registerMock('parsexmlresponse', parsexmlresponse);
         mockery.registerMock('./soap.js', upnpMock);
-        mockery.registerMock('./responseparsers.js', responseParserMock);
 
         var Ds = require('../ds.js').Ds;
         ds = new Ds('/test', {

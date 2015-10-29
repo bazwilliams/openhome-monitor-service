@@ -4,7 +4,7 @@ let _ = require('underscore');
 let upnp = require("./soap.js");
 let xml2js = require('xml2js');
 let xmlParser = new xml2js.Parser({explicitArray: false});
-let responseParsers = require('./responseparsers.js');
+let responseParser = require('parsexmlresponse');
 
 function encode(text) {
     return text
@@ -13,78 +13,88 @@ function encode(text) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
 }
-function toTrack(result, callback) {
-    if (result['s:Envelope']['s:Body']['u:TrackResponse'].Uri) {
-        callback(null, {
-            track: result['s:Envelope']['s:Body']['u:TrackResponse'].Uri,
-            metadata: result['s:Envelope']['s:Body']['u:TrackResponse'].Metadata
-        });
-    } else {
-        callback(new Error('No track found'));
-    }
+function toTrack(callback) {
+    return function(err, result) {
+        if (result['s:Envelope']['s:Body']['u:TrackResponse'].Uri) {
+            callback(null, {
+                track: result['s:Envelope']['s:Body']['u:TrackResponse'].Uri,
+                metadata: result['s:Envelope']['s:Body']['u:TrackResponse'].Metadata
+            });
+        } else {
+            callback(new Error('No track found'));
+        }
+    };
 }
-function binaryIdArrayToIntList(result, callback) {
-    let buffer = new Buffer(result['s:Envelope']['s:Body']['u:IdArrayResponse'].Array, 'base64');
-    callback(null, _.reject(new Uint32Array(buffer), num => num === 0));
+function binaryIdArrayToIntList(callback) {
+    return function (err, data) {
+        let buffer = new Buffer(data['s:Envelope']['s:Body']['u:IdArrayResponse'].Array, 'base64');
+        callback(null, _.reject(new Uint32Array(buffer), num => num === 0));
+    };
 }
-function toSourceList(result, callback) {
-    if (result && result['s:Envelope']['s:Body']['u:SourceXmlResponse']) {
-        xmlParser.parseString(result['s:Envelope']['s:Body']['u:SourceXmlResponse'].Value, function (err, result) {
+function toSourceList(callback) {
+    return function toSources(err, data) {
+        if (data && data['s:Envelope']['s:Body']['u:SourceXmlResponse']) {
+            xmlParser.parseString(data['s:Envelope']['s:Body']['u:SourceXmlResponse'].Value, function (err, result) {
+                if (err) {
+                    callback(err);
+                } else {
+                    if (_.isArray(result.SourceList.Source)) {
+                        callback(null, _.map(result.SourceList.Source, function (source) {
+                            return {
+                                name: source.Name,
+                                type: source.Type,
+                                visible: source.Visible.toLowerCase() === 'true'
+                            };
+                        }));
+                    } else {
+                        callback(null, [{
+                            name: result.SourceList.Source.Name,
+                            type: result.SourceList.Source.Type,
+                            visible: result.SourceList.Source.Visible.toLowerCase() === 'true'
+                        }]);
+                    }
+                }
+            });
+        } else {
+            callback(new Error('No sourceXml Found'));
+        }
+    };
+}
+function parseNewId(callback) {
+    return function(err, result) {
+        if (result['s:Envelope']['s:Body']['u:InsertResponse']) {
+            callback(null, result['s:Envelope']['s:Body']['u:InsertResponse'].NewId);
+        } else {
+            callback(new Error('No NewId Found'));
+        }
+    };
+}
+function readTrackListResponseToTracks(callback) {
+    return function(err, data) {
+        xmlParser.parseString(data['s:Envelope']['s:Body']['u:ReadListResponse'].TrackList, function (err, result) {
             if (err) {
                 callback(err);
             } else {
-                if (_.isArray(result.SourceList.Source)) {
-                    callback(null, _.map(result.SourceList.Source, function (source) {
-                        return {
-                            name: source.Name,
-                            type: source.Type,
-                            visible: source.Visible.toLowerCase() === 'true'
-                        };
-                    }));
+                let tracks = [];
+                if (_.isArray(result.TrackList.Entry)) {
+                    _.each(result.TrackList.Entry, function (track) {
+                        tracks.push({
+                            track: track.Uri,
+                            metadata: track.Metadata
+                        });
+                    });
                 } else {
-                    callback(null, [{
-                        name: result.SourceList.Source.Name,
-                        type: result.SourceList.Source.Type,
-                        visible: result.SourceList.Source.Visible.toLowerCase() === 'true'
-                    }]);
+                    if (result.TrackList.Entry) {
+                        tracks.push({
+                            track: result.TrackList.Entry.Uri,
+                            metadata: result.TrackList.Entry.Metadata
+                        });
+                    }
                 }
+                callback(null, tracks);
             }
         });
-    } else {
-        callback(new Error('No sourceXml Found'));
     }
-}
-function parseNewId(result, callback) {
-    if (result['s:Envelope']['s:Body']['u:InsertResponse']) {
-        callback(null, result['s:Envelope']['s:Body']['u:InsertResponse'].NewId);
-    } else {
-        callback(new Error('No NewId Found'));
-    }
-}
-function readTrackListResponseToTracks(result, callback) {
-    xmlParser.parseString(result['s:Envelope']['s:Body']['u:ReadListResponse'].TrackList, function (err, result) {
-        if (err) {
-            callback(err);
-        } else {
-            let tracks = [];
-            if (_.isArray(result.TrackList.Entry)) {
-                _.each(result.TrackList.Entry, function (track) {
-                    tracks.push({
-                        track: track.Uri,
-                        metadata: track.Metadata
-                    });
-                });
-            } else {
-                if (result.TrackList.Entry) {
-                    tracks.push({
-                        track: result.TrackList.Entry.Uri,
-                        metadata: result.TrackList.Entry.Metadata
-                    });
-                }
-            }
-            callback(null, tracks);
-        }
-    });
 }
 function processChannelListEntry(channelListEntry, callback) {
     xmlParser.parseString(channelListEntry.Metadata, function (err, result) {
@@ -95,41 +105,45 @@ function processChannelListEntry(channelListEntry, callback) {
         });
     });
 }
-function readChannelListResponseToTracks(result, callback) {
-    xmlParser.parseString(result['s:Envelope']['s:Body']['u:ReadListResponse'].ChannelList, function (err, result) {
-        if (err) {
-            callback(err);
-        } else {
-            let channelList = [];
-            if (_.isArray(result.ChannelList.Entry)) {
-                _.each(result.ChannelList.Entry, function (channel) {
-                    processChannelListEntry(channel, function(err, data) {
-                        channelList.push({
-                            id: channel.Id,
-                            uri: data.uri,
-                            title: data.title,
-                            artwork: data.artwork
-                        });  
-                    });
-                });
+function readChannelListResponseToTracks(callback) {
+    return function(err, data) {
+        xmlParser.parseString(data['s:Envelope']['s:Body']['u:ReadListResponse'].ChannelList, function (err, result) {
+            if (err) {
+                callback(err);
             } else {
-                if (result.ChannelList.Entry) {
-                    processChannelListEntry(result.ChannelList.Entry, function(err, data) {
-                        channelList.push({
-                            id: result.ChannelList.Entry.Id,
-                            uri: data.uri,
-                            title: data.title,
-                            artwork: data.artwork
+                let channelList = [];
+                if (_.isArray(result.ChannelList.Entry)) {
+                    _.each(result.ChannelList.Entry, function (channel) {
+                        processChannelListEntry(channel, function (err, data2) {
+                            channelList.push({
+                                id: channel.Id,
+                                uri: data2.uri,
+                                title: data2.title,
+                                artwork: data2.artwork
+                            });
                         });
                     });
+                } else {
+                    if (result.ChannelList.Entry) {
+                        processChannelListEntry(result.ChannelList.Entry, function (err, data2) {
+                            channelList.push({
+                                id: result.ChannelList.Entry.Id,
+                                uri: data2.uri,
+                                title: data2.title,
+                                artwork: data2.artwork
+                            });
+                        });
+                    }
                 }
+                callback(null, channelList);
             }
-            callback(null, channelList);
-        }
-    });
+        });
+    };
 }
-function parseStandbyResponse(result, callback) {
-    callback(null, result['s:Envelope']['s:Body']['u:StandbyResponse'].Value);
+function parseStandbyResponse(callback) {
+    return function (err, result) {
+        callback(null, result['s:Envelope']['s:Body']['u:StandbyResponse'].Value);
+    };
 }
 function ensureStatusCode(expectedStatusCode, taskMessage, callback) {
     return function statusChecker(res) {
@@ -149,7 +163,7 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
             'urn:av-openhome-org:service:Playlist:1',
             'ReadList',
             '<IdList>' + idArrayString + '</IdList>',
-            responseParsers.xml(readTrackListResponseToTracks, callback)
+            responseParser(readTrackListResponseToTracks(callback))
         ).on('error', callback);
     };
     this.getTrackIds = function(callback) {
@@ -159,7 +173,7 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
             'urn:av-openhome-org:service:Playlist:1',
             'IdArray',
             '',
-            responseParsers.xml(binaryIdArrayToIntList, callback)
+            responseParser(binaryIdArrayToIntList(callback))
         ).on('error', callback);
     };
     this.deleteAll = function(callback) {
@@ -228,7 +242,7 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
                         'urn:av-openhome-org:service:Playlist:1',
                         'Insert',
                         '<AfterId>' + afterId + '</AfterId><Uri>' + encode(res) + '</Uri><Metadata>' + encode(trackDetailsXml) + '</Metadata>',
-                        responseParsers.xml(parseNewId, callback)
+                        responseParser(parseNewId(callback))
                     ).on('error', callback);
                 }
             }
@@ -241,7 +255,7 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
             'urn:av-openhome-org:service:Product:1',
             'SourceXml',
             '',
-            responseParsers.xml(toSourceList, callback)
+            responseParser(toSourceList(callback))
         ).on('error', callback);
     };
     this.changeSource = function (source, callback) {
@@ -261,7 +275,7 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
             'urn:av-openhome-org:service:Product:1',
             'Standby',
             '',
-            responseParsers.xml(parseStandbyResponse, callback)
+            responseParser(parseStandbyResponse(callback))
         ).on('error', callback);
     };
     this.powerOn = function (callback) {
@@ -306,7 +320,7 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
                 'urn:av-openhome-org:service:Radio:1',
                 'IdArray',
                 '',
-                responseParsers.xml(binaryIdArrayToIntList, callback)
+                responseParser(binaryIdArrayToIntList(callback))
             ).on('error', callback);
         }
     };
@@ -318,7 +332,7 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
             'urn:av-openhome-org:service:Radio:1',
             'ReadList',
             '<IdList>' + idArrayString + '</IdList>',
-            responseParsers.xml(readChannelListResponseToTracks, callback)
+            responseParser(readChannelListResponseToTracks(callback))
         ).on('error', callback);
     };
     this.setRadioChannel = function(radioChannel, callback) {
@@ -358,7 +372,7 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
             'urn:av-openhome-org:service:Info:1',
             'Track',
             '',
-            responseParsers.xml(toTrack, callback)
+            responseParser(toTrack(callback))
         ).on('error', callback);
     };
 };

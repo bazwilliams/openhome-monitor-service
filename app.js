@@ -1,0 +1,2 @@
+var manager = require('./devicemanager');
+

@@ -1,5 +1,5 @@
 {
-  "name": "openhome-monitor-service",
+  "name": "openhome-devices-manager",
   "version": "0.0.1",
   "description": "Discover, announce and provide simple control of Openhome, Linn Ds and other Upnp compatible devices via MQTT",
   "author": "Barry John Williams <barry@bjw.me.uk>",

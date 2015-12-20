@@ -1,2 +1,2 @@
-var manager = require('./devicemanager');
+var manager = require('./index.js');
 

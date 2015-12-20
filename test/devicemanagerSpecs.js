@@ -26,7 +26,7 @@ describe('devicemanager', function () {
         });
         mockery.registerMock('./logger.js', { stream: sinon.spy(), info: sinon.spy(), warn: sinon.spy(), debug: sinon.spy(), error: sinon.spy() });
         mockery.registerMock('node-upnp-ssdp', ssdpFake);
-        sut = require('../devicemanager.js');
+        sut = require('../index.js');
     });
     afterEach(function () {
         mockery.deregisterAll();

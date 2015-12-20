@@ -108,6 +108,7 @@ ssdp.on("DeviceFound", function onDeviceFound(res) {
             logger.warn('Problem processing device at ' + res.location);
             logger.warn(err);
         } else {
+            devices.set(uuid, device);
             logger.info("Found: " + device.name);
         }
       });

@@ -65,9 +65,9 @@ describe('devicemanager', function () {
 	    it('Should return one device', function () {
                 expect(result).to.be.an('array').and.have.length(1);
 	    });
-        it('Should return the expected device', function () {
-            expect(result[0]).to.contain.all.keys('ds', 'icon', 'name', 'sourceList', 'urlRoot');
-        });
+            it('Should return the expected device', function () {
+                expect(result[0]).to.be.eql('4c494e4e-0026-0f21-cc9a-01320147013f'); 
+            });
 	});
         describe('and getting a specific device', function () {
             let result;

@@ -76,6 +76,8 @@ exports.getDevice = function(uuid) {
     return devices.get(uuid);
 };
 
+exports.getDevices = () => { return devices.values(); };
+
 ssdp.on("DeviceAvailable:urn:av-openhome-org:service:Playlist:1", function onDeviceAvailable(res) {
     let uuid = parseUuid(res.usn, res.nt);
     processDevice(res.location, function makeDeviceAvailable(err, device) {

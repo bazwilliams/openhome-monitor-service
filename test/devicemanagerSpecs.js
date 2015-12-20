@@ -57,6 +57,26 @@ describe('devicemanager', function () {
                 }
             },50);
         });
+	describe('and getting all devices', function () {
+        let result;
+	    beforeEach(function () {
+            result = [];
+            let iterator = sut.getDevices();
+            let next;
+            do {
+                next = iterator.next();
+                if (!next.done) {
+                    result.push(next.value);
+                }
+            } while (!next.done);
+	    });
+	    it('Should return one device', function () {
+            expect(result).to.be.an('array').and.have.length(1);
+	    });
+        it('Should return the expected device', function () {
+            expect(result[0]).to.contain.all.keys('ds', 'icon', 'name', 'sourceList', 'urlRoot');
+        });
+	});
         describe('and getting a specific device', function () {
             let result;
             beforeEach(function () {

@@ -10,7 +10,8 @@ let logger = require('./logger.js');
 
 let devices = new Map();
 
-const searchType = 'urn:av-openhome-org:service:Product:1';
+const searchType1 = 'urn:av-openhome-org:service:Product:1';
+const searchType2 = 'urn:av-openhome-org:service:Product:2';
 
 let parseUuid = usn => (/uuid:(.*)?::.*/).exec(usn)[1];
 
@@ -101,7 +102,7 @@ ssdp.on("DeviceUnavailable:urn:av-openhome-org:service:Playlist:1", function onD
 });
 
 ssdp.on("DeviceFound", function onDeviceFound(res) {
-    if (res.st === searchType) {
+    if (res.st === searchType1 || res.st === searchType2) {
       let uuid = parseUuid(res.usn, res.st);
       processDevice(res.location, function makeDeviceAvailable(err, device) {
         if (err) {
@@ -115,4 +116,5 @@ ssdp.on("DeviceFound", function onDeviceFound(res) {
     }
 });
 
-ssdp.mSearch(searchType);
+ssdp.mSearch(searchType1);
+ssdp.mSearch(searchType2);

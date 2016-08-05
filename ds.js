@@ -159,8 +159,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
         let idArrayString = _.reduce(idArray, function (memo, num) { return memo + num + ' '; }, '').trim();
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Playlist:1'].controlUrl,
-            'urn:av-openhome-org:service:Playlist:1',
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].serviceType,
             'ReadList',
             '<IdList>' + idArrayString + '</IdList>',
             responseParser(readTrackListResponseToTracks(callback))
@@ -169,8 +169,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.getTrackIds = function(callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Playlist:1'].controlUrl,
-            'urn:av-openhome-org:service:Playlist:1',
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].serviceType,
             'IdArray',
             '',
             responseParser(binaryIdArrayToIntList(callback))
@@ -179,8 +179,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.deleteAll = function(callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Playlist:1'].controlUrl,
-            'urn:av-openhome-org:service:Playlist:1',
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].serviceType,
             'DeleteAll',
             '',
             ensureStatusCode(200, "Delete", callback)
@@ -189,8 +189,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.enableShuffle = function (callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Playlist:1'].controlUrl,
-            'urn:av-openhome-org:service:Playlist:1',
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].serviceType,
             'SetShuffle',
             '<Value>1</Value>',
             ensureStatusCode(200, "Enable Shuffle", callback)
@@ -199,8 +199,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.disableShuffle = function (callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Playlist:1'].controlUrl,
-            'urn:av-openhome-org:service:Playlist:1',
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].serviceType,
             'SetShuffle',
             '<Value>0</Value>',
             ensureStatusCode(200, "Disable Shuffle", callback)
@@ -209,8 +209,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.playFromPlaylistIndex = function (index, callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Playlist:1'].controlUrl,
-            'urn:av-openhome-org:service:Playlist:1',
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].serviceType,
             'SeekIndex',
             '<Value>' + index + '</Value>',
             ensureStatusCode(200, "Play Playlist From Index " + index, callback)
@@ -219,8 +219,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.playPlaylist = function (callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Playlist:1'].controlUrl,
-            'urn:av-openhome-org:service:Playlist:1',
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].serviceType,
             'Play',
             '',
             ensureStatusCode(200, "Play Playlist", callback)
@@ -238,8 +238,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
                 } else {
                     upnp.soapRequest(
                         deviceUrlRoot,
-                        serviceList['urn:av-openhome-org:service:Playlist:1'].controlUrl,
-                        'urn:av-openhome-org:service:Playlist:1',
+                        serviceList['urn:av-openhome-org:serviceId:Playlist'].controlUrl,
+                        serviceList['urn:av-openhome-org:serviceId:Playlist'].serviceType,
                         'Insert',
                         '<AfterId>' + afterId + '</AfterId><Uri>' + encode(res) + '</Uri><Metadata>' + encode(trackDetailsXml) + '</Metadata>',
                         responseParser(parseNewId(callback))
@@ -251,8 +251,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.getSources = function (callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Product:1'].controlUrl,
-            'urn:av-openhome-org:service:Product:1',
+            serviceList['urn:av-openhome-org:serviceId:Product'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Product'].serviceType,
             'SourceXml',
             '',
             responseParser(toSourceList(callback))
@@ -261,8 +261,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.changeSource = function (source, callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Product:1'].controlUrl,
-            'urn:av-openhome-org:service:Product:1',
+            serviceList['urn:av-openhome-org:serviceId:Product'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Product'].serviceType,
             'SetSourceIndex',
             '<Value>'+source+'</Value>',
             ensureStatusCode(200, "Change Source", callback)
@@ -271,8 +271,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.standbyState = function (callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Product:1'].controlUrl,
-            'urn:av-openhome-org:service:Product:1',
+            serviceList['urn:av-openhome-org:serviceId:Product'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Product'].serviceType,
             'Standby',
             '',
             responseParser(parseStandbyResponse(callback))
@@ -281,8 +281,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.powerOn = function (callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Product:1'].controlUrl,
-            'urn:av-openhome-org:service:Product:1',
+            serviceList['urn:av-openhome-org:serviceId:Product'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Product'].serviceType,
             'SetStandby',
             '<Value>0</Value>',
             ensureStatusCode(200, "Power On", callback)
@@ -291,8 +291,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.powerOff = function (callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Product:1'].controlUrl,
-            'urn:av-openhome-org:service:Product:1',
+            serviceList['urn:av-openhome-org:serviceId:Product'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Product'].serviceType,
             'SetStandby',
             '<Value>1</Value>',
             ensureStatusCode(200, "Power Off", callback)
@@ -301,23 +301,23 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.playRadio = function (callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Radio:1'].controlUrl,
-            'urn:av-openhome-org:service:Radio:1',
+            serviceList['urn:av-openhome-org:serviceId:Radio'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Radio'].serviceType,
             'Play',
             '',
             ensureStatusCode(200, "Play Radio", callback)
         ).on('error', callback);
     };
     this.getRadioIdArray = function(callback) {
-        if(!serviceList['urn:av-openhome-org:service:Radio:1']) {
+        if(!serviceList['urn:av-openhome-org:serviceId:Radio']) {
             let error = new Error('No Radio Service');
             error.statusCode = 404;
             callback(error);
         } else {
             upnp.soapRequest(
                 deviceUrlRoot,
-                serviceList['urn:av-openhome-org:service:Radio:1'].controlUrl,
-                'urn:av-openhome-org:service:Radio:1',
+                serviceList['urn:av-openhome-org:serviceId:Radio'].controlUrl,
+                serviceList['urn:av-openhome-org:serviceId:Radio'].serviceType,
                 'IdArray',
                 '',
                 responseParser(binaryIdArrayToIntList(callback))
@@ -328,8 +328,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
         let idArrayString = _.reduce(idArray, function (memo, num) { return memo + num + ' '; }, '').trim();
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Radio:1'].controlUrl,
-            'urn:av-openhome-org:service:Radio:1',
+            serviceList['urn:av-openhome-org:serviceId:Radio'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Radio'].serviceType,
             'ReadList',
             '<IdList>' + idArrayString + '</IdList>',
             responseParser(readChannelListResponseToTracks(callback))
@@ -338,8 +338,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.setRadioChannel = function(radioChannel, callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Radio:1'].controlUrl,
-            'urn:av-openhome-org:service:Radio:1',
+            serviceList['urn:av-openhome-org:serviceId:Radio'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Radio'].serviceType,
             'SetId',
             '<Value>' + radioChannel.id + '</Value><Uri>' + encode(radioChannel.uri) + '</Uri>',
             ensureStatusCode(200, "Set Radio Channel", callback)
@@ -348,8 +348,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.volumeInc = function (callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Volume:1'].controlUrl,
-            'urn:av-openhome-org:service:Volume:1',
+            serviceList['urn:av-openhome-org:serviceId:Volume'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Volume'].serviceType,
             'VolumeInc',
             '',
             ensureStatusCode(200, "Volume Increase", callback)
@@ -358,8 +358,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.volumeDec = function (callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Volume:1'].controlUrl,
-            'urn:av-openhome-org:service:Volume:1',
+            serviceList['urn:av-openhome-org:serviceId:Volume'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Volume'].serviceType,
             'VolumeDec',
             '',
             ensureStatusCode(200, "Volume Decrease", callback)
@@ -368,8 +368,8 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
     this.currentTrackDetails = function(callback) {
         upnp.soapRequest(
             deviceUrlRoot,
-            serviceList['urn:av-openhome-org:service:Info:1'].controlUrl,
-            'urn:av-openhome-org:service:Info:1',
+            serviceList['urn:av-openhome-org:serviceId:Info'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Info'].serviceType,
             'Track',
             '',
             responseParser(toTrack(callback))

@@ -16,8 +16,8 @@ let parseUuid = usn => (/uuid:(.*)?::.*/).exec(usn)[1];
 
 function processServiceListArray(serviceList) {
     return _.reduce(serviceList, (memo, item) => {
-        memo[item.serviceType] = {
-            serviceId: item.serviceId,
+        memo[item.serviceId] = {
+            serviceType: item.serviceType,
             scpdurl: item.SCPDURL,
             controlUrl: item.controlURL,
             eventSubUrl: item.eventSubURL

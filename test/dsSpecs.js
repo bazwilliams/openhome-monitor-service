@@ -40,10 +40,10 @@ describe('ds', function () {
 
         var Ds = require('../ds.js').Ds;
         ds = new Ds('/test', {
-            'urn:av-openhome-org:service:Info:1' : { controlUrl: '/info' },
-            'urn:av-openhome-org:service:Product:1' : { controlUrl: '/product' },
-            'urn:av-openhome-org:service:Playlist:1' : { controlUrl: '/playlist' },
-            'urn:av-openhome-org:service:Volume:1' : { controlUrl: '/volume' }
+            'urn:av-openhome-org:serviceId:Info' : { controlUrl: '/info' },
+            'urn:av-openhome-org:serviceId:Product' : { controlUrl: '/product' },
+            'urn:av-openhome-org:serviceId:Playlist' : { controlUrl: '/playlist' },
+            'urn:av-openhome-org:serviceId:Volume' : { controlUrl: '/volume' }
         });
     });
     afterEach(function () {
@@ -54,10 +54,10 @@ describe('with no radio service', function () {
     beforeEach(function () {
         var Ds = require('../ds.js').Ds;
         ds = new Ds('/test', {
-            'urn:av-openhome-org:service:Info:1' : { controlUrl: '/info' },
-            'urn:av-openhome-org:service:Product:1' : { controlUrl: '/product' },
-            'urn:av-openhome-org:service:Playlist:1' : { controlUrl: '/playlist' },
-            'urn:av-openhome-org:service:Volume:1' : { controlUrl: '/volume' }
+            'urn:av-openhome-org:serviceId:Info' : { controlUrl: '/info' },
+            'urn:av-openhome-org:serviceId:Product' : { controlUrl: '/product' },
+            'urn:av-openhome-org:serviceId:Playlist' : { controlUrl: '/playlist' },
+            'urn:av-openhome-org:serviceId:Volume' : { controlUrl: '/volume' }
         });
     });
     describe('When requesting radio stations', function () {
@@ -78,11 +78,11 @@ describe('with radio service', function () {
     beforeEach(function () {
         var Ds = require('../ds.js').Ds;
         ds = new Ds('/test', {
-            'urn:av-openhome-org:service:Info:1' : { controlUrl: '/info' },
-            'urn:av-openhome-org:service:Radio:1' : { controlUrl: '/radio' },
-            'urn:av-openhome-org:service:Product:1' : { controlUrl: '/product' },
-            'urn:av-openhome-org:service:Playlist:1' : { controlUrl: '/playlist' },
-            'urn:av-openhome-org:service:Volume:1' : { controlUrl: '/volume' }
+            'urn:av-openhome-org:serviceId:Info' : { controlUrl: '/info', serviceType: 'urn:av-openhome-org:service:Info:1' },
+            'urn:av-openhome-org:serviceId:Radio' : { controlUrl: '/radio', serviceType: 'urn:av-openhome-org:service:Radio:1' },
+            'urn:av-openhome-org:serviceId:Product' : { controlUrl: '/product', serviceType: 'urn:av-openhome-org:service:Product:1' },
+            'urn:av-openhome-org:serviceId:Playlist' : { controlUrl: '/playlist', serviceType: 'urn:av-openhome-org:service:Playlist:1' },
+            'urn:av-openhome-org:serviceId:Volume' : { controlUrl: '/volume', serviceType: 'urn:av-openhome-org:service:Volume:1' }
         });
     });
     describe('When getting track id list of playlist items', function () {

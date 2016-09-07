@@ -5,6 +5,7 @@ let upnp = require("./soap.js");
 let xml2js = require('xml2js');
 let xmlParser = new xml2js.Parser({explicitArray: false});
 let responseParser = require('parsexmlresponse');
+let binary = require('binary');
 
 function encode(text) {
     return text
@@ -28,7 +29,12 @@ function toTrack(callback) {
 function binaryIdArrayToIntList(callback) {
     return function (err, data) {
         let buffer = new Buffer(data['s:Envelope']['s:Body']['u:IdArrayResponse'].Array, 'base64');
-        callback(null, _.reject(new Uint32Array(buffer), num => num === 0));
+        let arrayList = [];
+        let binaryList = binary.parse(buffer);
+        _.each(_.range(buffer.length / 4), function () {
+            arrayList.push(binaryList.word32bu('a').vars.a);
+        });
+        callback(null, _.reject(arrayList, function (num) { return num === 0; })); 
     };
 }
 function toSourceList(callback) {

@@ -351,6 +351,16 @@ exports.Ds = function(deviceUrlRoot, serviceList) {
             ensureStatusCode(200, "Set Radio Channel", callback)
         ).on('error', callback);
     };
+    this.skipTrack = (callback) => {
+        upnp.soapRequest(
+            deviceUrlRoot,
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].controlUrl,
+            serviceList['urn:av-openhome-org:serviceId:Playlist'].serviceType,
+            'Next',
+            '',
+            ensureStatusCode(200, "Skip Track", callback)
+        ).on('error', callback);
+    };
     this.volumeInc = function (callback) {
         upnp.soapRequest(
             deviceUrlRoot,

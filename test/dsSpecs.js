@@ -529,6 +529,27 @@ describe('with radio service', function () {
             expect(soapRequestArgs[4]).to.be.eql('<Value>0</Value>');
         });
     });
+    describe('When skipping track', function() {
+        beforeEach(function (done) {
+            ds.skipTrack(function (err, data) {
+                expect(err).to.not.exist;
+                done();
+            });
+            soapRequestCb({
+                statusCode: 200,
+                setEncoding: sinon.spy()
+            });
+        });
+        it('Should use the playlist control uri', function () {
+            expect(soapRequestArgs[1]).to.be.eql('/playlist');
+        });
+        it('Should use playlist service urn', function () {
+            expect(soapRequestArgs[2]).to.be.eql('urn:av-openhome-org:service:Playlist:1');
+        });
+        it('Should use Next command', function () {
+            expect(soapRequestArgs[3]).to.be.eql('Next');
+        });
+    });
     describe('When enabling shuffle', function() {
         beforeEach(function (done) {
             ds.enableShuffle(function (err, data) {

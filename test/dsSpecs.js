@@ -529,6 +529,27 @@ describe('with radio service', function () {
             expect(soapRequestArgs[4]).to.be.eql('<Value>0</Value>');
         });
     });
+    describe('When pausing', () => {
+        beforeEach((done) => {
+            ds.pause((err, data) => {
+                expect(err).to.not.exist;
+                done();
+            });
+            soapRequestCb({
+                statusCode: 200,
+                setEncoding: sinon.spy()
+            });
+        });
+        it('Should use the playlist control uri', () => {
+            expect(soapRequestArgs[1]).to.be.eql('/playlist');
+        });
+        it('Should use playlist service urn', () => {
+            expect(soapRequestArgs[2]).to.be.eql('urn:av-openhome-org:service:Playlist:1');
+        });
+        it('Should use Pause command', () => {
+            expect(soapRequestArgs[3]).to.be.eql('Pause');
+        });
+    });
     describe('When skipping track', function() {
         beforeEach(function (done) {
             ds.skipTrack(function (err, data) {
